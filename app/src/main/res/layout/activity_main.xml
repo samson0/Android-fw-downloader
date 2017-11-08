@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/activity_bg"
+    tools:context="com.example.msr.hengyu.msr_config.MainActivity"
+    android:weightSum="1">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".25">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textSize="@dimen/text_size"
+            android:textColor="@color/activity_text"
+            android:text="C215A V1.0.5"
+            android:layout_weight=".2"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".8">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:textColor="@color/activity_text"
+                android:layout_marginLeft="35dp"
+                android:text="Enabled      Start Sentinel"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox
+                    android:id="@+id/checkbox_enable_T1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="Track 1"
+                    android:checked="true"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="10dp"/>
+                <!--
+                                <ImageView
+                                    android:layout_width="30dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="@color/activity_bg"/>
+                -->
+                <EditText
+                    android:id="@+id/et_start_sentinel_T1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:maxLength="16"
+                    android:inputType="text|textNoSuggestions"/>
+                <!-- android:hint="%" --> />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox android:id="@+id/checkbox_enable_T2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="Track 2"
+                    android:checked="true"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="10dp"/>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:background="@color/activity_bg"/>
+
+                <EditText
+                    android:id="@+id/et_start_sentinel_T2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:maxLength="16"
+                    android:inputType="text|textNoSuggestions"/>
+                <!-- android:hint=";" -->
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <CheckBox android:id="@+id/checkbox_enable_T3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="Track 3"
+                    android:checked="true"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="10dp"/>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:background="@color/activity_bg"/>
+
+                <EditText
+                    android:id="@+id/et_start_sentinel_T3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:maxLength="16"
+                    android:inputType="text|textNoSuggestions"/>
+                <!-- android:hint=";" --> />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:background="@color/activity_bg"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:background="@color/activity_bg"/>
+
+                <CheckBox android:id="@+id/checkbox_buzzer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Enable Beep"
+                    android:checked="true"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="10dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".35">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/activity_bg"
+            android:layout_weight=".25"/>
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".75">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/blank_white_magnetic_card"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="@color/activity_bg"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="55dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:text="Reading Sequence:   "/>
+
+                <Spinner
+                    android:id="@+id/sp_track_sequence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".40">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/activity_bg"
+            android:layout_weight=".2"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".8">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:textColor="@color/activity_text"
+                android:text="   End Sentinel                  Return Code"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/et_end_sentinel_T1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="0.7"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:maxLength="16"
+                    android:inputType="text|textNoSuggestions"/>
+                <!-- android:hint="\?" --> />
+
+                <CheckBox android:id="@+id/checkbox_CR_T1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="0.3"
+                    android:text="   "
+                    android:checked="false"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="20dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/et_end_sentinel_T2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="0.7"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:maxLength="16"
+                    android:inputType="text|textNoSuggestions"/>
+                <!-- android:hint="\?" --> />
+
+                <CheckBox android:id="@+id/checkbox_CR_T2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="0.3"
+                    android:text="   "
+                    android:checked="false"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="20dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/et_end_sentinel_T3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="0.7"
+                    android:textSize="@dimen/text_size"
+                    android:textColor="@color/activity_text"
+                    android:maxLength="16"
+                    android:inputType="text|textNoSuggestions"/>
+                <!-- android:hint="\?" --> /> />
+
+                <CheckBox android:id="@+id/checkbox_CR_T3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="0.3"
+                    android:text="   "
+                    android:checked="false"
+                    android:onClick="onCheckboxClicked"
+                    android:padding="20dp"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="@color/activity_bg" />
+
+            <Button
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Get"
+                android:textSize="@dimen/text_size"
+                android:layout_marginLeft="50dp"
+                android:onClick="buttonGetOnClick"/>
+            <Button
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:text="Update"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="30dp"
+                android:onClick="buttonUpdateOnClick"/>
+            <Button
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size"
+                android:text="Get version"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="30dp"
+                android:onClick="buttonGetFwVerOnClick"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

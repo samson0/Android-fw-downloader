@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MSR_Config.iml" filepath="$PROJECT_DIR$/MSR_Config.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fw_downloader/fw_downloader.iml" filepath="$PROJECT_DIR$/fw_downloader/fw_downloader.iml" />
     </modules>
   </component>
 </project>

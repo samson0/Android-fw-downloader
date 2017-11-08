@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':fw_downloader'

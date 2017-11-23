@@ -1,6 +1,7 @@
 package com.example.msr.hengyu.fw_downloader;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +23,10 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private File mCurrentParent;
     File[] mCurrentFiles;
 
+    private static byte[] file_buf = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,18 +160,27 @@ public class MainActivity extends AppCompatActivity {
 
     private static class MyHandler extends Handler {
         private final byte CMD_FIRMWARE_VERSION = (byte)0xCA;
-        private final byte MSR_SET_CONFIGURATION_COMMAND = (byte)0x4A;
-        private final byte MSR_READ_CONFIGURATION_COMMAND = (byte)0x4B;
-        private final byte MSR_PROGRAM_KEY_COMMAND = (byte)0x4C;
-        private final byte MSR_READ_KEY_COMMAND = (byte)0x4D;
+        private final byte CMD_FIRMWARE_VERSION_ISP = (byte)0xC0;
+        private final byte CMD_CHECK_PROFILE = (byte)0xCE;
+        private final byte CMD_ISP_CHECK_PROFILE = (byte)0xBF;
+        private final byte CMD_ENTER_ISP = (byte)0xBA;
+        private final byte CMD_CHIP_ERASE_ISP = (byte)0xBE;
+        private final byte CMD_FLASH_WRITE_ISP = (byte)0xBB;
+        private final byte CMD_CHIP_PROTECT_ISP = (byte)0xC2;
+        private final byte CMD_RESET_ISP = (byte)0xC9;
 
         private final byte HY_STATUS_SUCCESS = 0x00;
+        private final byte HY_STATUS_INCORRECT_PROFILE = 0x18;
         private final byte HY_STATUS_READ_FAIL = 0x23;
         private final byte HY_STATUS_WRITE_FAIL = 0x24;
         private final byte HY_CHECK_DEVICE_STATUS =	(byte)0xFE;
         private final byte HY_STATUS_FAIL = (byte)0xFF;
 
         private final WeakReference<MainActivity> myActivity;
+
+        private ProgressDialog progress = null;
+
+        private int file_header = 0;
 
         public MyHandler(MainActivity activity){
             myActivity = new WeakReference<MainActivity>(activity);
@@ -178,7 +192,88 @@ public class MainActivity extends AppCompatActivity {
             if ( active != null ){
                 switch(msg.what){
                     case CMD_FIRMWARE_VERSION:
+                        //Toast.makeText(myActivity.get(), String.format("%02X %02X %02X", byteCmdBuf[3], byteCmdBuf[4], byteCmdBuf[5]), Toast.LENGTH_LONG).show();
                         printResult("Firmware version", new String(Arrays.copyOfRange(byteCmdBuf, 4, 12)), byteCmdBuf[3] );
+                        break;
+                    case CMD_FIRMWARE_VERSION_ISP:
+                        printResult("Bootloader firmware version", new String(Arrays.copyOfRange(byteCmdBuf, 4, 12)), byteCmdBuf[3] );
+                        break;
+                    case CMD_CHECK_PROFILE:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("Check profile", "INCORRECT PROFILE", byteCmdBuf[3]);
+                        }else {
+                            //Enter ISP
+                            hyRFID_Reader.ISP_EnterISP();
+                        }
+                        break;
+                    case CMD_ENTER_ISP:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("Enter ISP", "Fail to enter ISP mode.", byteCmdBuf[3]);
+                        }else{
+                            new Handler().postDelayed(new Runnable(){
+                                public void run() {
+                                    hyRFID_Reader.ISP_CheckProfile(Arrays.copyOfRange(file_buf, file_buf.length - 14, file_buf.length - 4));
+                                }
+                            }, 4000);
+                        }
+                        break;
+                    case CMD_ISP_CHECK_PROFILE:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("ISP Check Profile", "Fail to check profile(ISP)", byteCmdBuf[3]);
+                        }else{
+                            hyRFID_Reader.ISP_ChipErase();
+                        }
+                        break;
+                    case CMD_CHIP_ERASE_ISP:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("Chip erase", "Chip erase fail", byteCmdBuf[3]);
+                        }else{
+                            progress = new ProgressDialog(active);
+                            progress.setMessage("Downloading Firmware");
+                            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                            progress.setProgress(0);
+                            progress.setMax(100);
+                            progress.show();
+
+                            file_header = 0;
+
+                            hyRFID_Reader.ISP_WriteFlash(file_header, Arrays.copyOfRange(file_buf, file_header, file_header + 64));
+                            file_header += 64;
+                        }
+                        break;
+                    case CMD_FLASH_WRITE_ISP:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("Write flash", String.format("Write flash fail, %04X", file_header), byteCmdBuf[3]);
+                        }else{
+                            if(file_header < file_buf.length) {
+                                progress.setProgress((file_header*100)/file_buf.length);
+
+                                try {
+                                    hyRFID_Reader.ISP_WriteFlash(file_header, Arrays.copyOfRange(file_buf, file_header, file_header + 64));
+                                }catch(ArrayIndexOutOfBoundsException e){
+                                    Toast.makeText(active, "ArrayIndexOutOfBoundsException", Toast.LENGTH_SHORT).show();
+                                }
+
+                                file_header += 64;
+                            }else{
+                                progress.setProgress(100);
+
+                                hyRFID_Reader.ISP_ChipProtect();
+                            }
+                        }
+                        break;
+                    case CMD_CHIP_PROTECT_ISP:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("Chip protect", "Chip protect fail", byteCmdBuf[3]);
+                        }else{
+                            hyRFID_Reader.ISP_ChipReset();
+                        }
+                        break;
+                    case CMD_RESET_ISP:
+                        if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
+                            printResult("Chip protect", "Chip protect fail", byteCmdBuf[3]);
+                        }else
+                            printResult("Firmware download", "Firmware download finished successfully.", byteCmdBuf[3]);
                         break;
                     case HY_STATUS_FAIL:
                         Toast.makeText(active, "Please check connection.", Toast.LENGTH_LONG).show();
@@ -201,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
             alertDialog.setTitle(strTitle);
 
             switch(byteResult){
-                case HY_STATUS_SUCCESS:
+                case HY_STATUS_SUCCESS:case HY_STATUS_INCORRECT_PROFILE:
                     alertDialog.setMessage(strMessage);
                     break;
                 case HY_STATUS_WRITE_FAIL:
@@ -225,14 +320,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void buttonCheckDeviceOnClick(View view){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+
         int device_id = hyRFID_Reader.check_Device();
 
         if(device_id == HY_RFID.HY_DEVICE_NONE)
-            Toast.makeText(MainActivity.this, "Can't find any HengYu devices.", Toast.LENGTH_LONG).show();
+            alertDialog.setMessage("Can't find any devices.");
         else if(device_id == HY_RFID.HY_DEVICE_C210A)
-            Toast.makeText(MainActivity.this, "C210A", Toast.LENGTH_LONG).show();
-        if(device_id == HY_RFID.HY_DEVICE_C215A)
-            Toast.makeText(MainActivity.this, "C215A", Toast.LENGTH_LONG).show();
+            alertDialog.setMessage("C210A");
+        else if(device_id == HY_RFID.HY_DEVICE_C215A)
+            alertDialog.setMessage("C215A");
+        else if(device_id == HY_RFID.HY_DEVICE_ISP)
+            alertDialog.setMessage("Device works in ISP mode");
+
+        alertDialog.setPositiveButton("OK", null);
+        alertDialog.show();
     }
 
     public void buttonDownloadOnClick(View view){
@@ -247,13 +349,70 @@ public class MainActivity extends AppCompatActivity {
 
         File fileFW = new File(strFilePath);
 
-        if(!fileFW.exists()){
-            alertDialog.setMessage("Can't open the file!");
-            alertDialog.setPositiveButton("OK", null);
-            alertDialog.show();
+        //Check firmware file
+        boolean checkFlag = false;
+        try{
+
+            if(!fileFW.exists()){
+                alertDialog.setMessage("Please select the firmware file!");
+                alertDialog.setPositiveButton("OK", null);
+                alertDialog.show();
+            }
+
+            file_buf = new byte[(int)fileFW.length()];
+
+            BufferedInputStream in = new BufferedInputStream(new FileInputStream(fileFW));
+            if( in.read(file_buf, 0, file_buf.length) == file_buf.length){
+
+            }else{
+                Toast.makeText(MainActivity.this, "Read file error!", Toast.LENGTH_SHORT).show();
+                checkFlag = true;
+            }
+
+            in.close();
+        }catch(FileNotFoundException fx){
+            fx.printStackTrace();
+            checkFlag = true;
+        }catch(IOException ex){
+            ex.printStackTrace();
+            checkFlag = true;
         }
 
-        
+        if(checkFlag)
+            return;
+
+        if(file_buf.length < 4*1024) {
+            Toast.makeText(MainActivity.this, "Wrong firmware file.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Check signature
+        if((file_buf[file_buf.length - 16] != (byte)0x7B) && (file_buf[file_buf.length - 15] != 0x6A)){
+            Toast.makeText(MainActivity.this, "Wrong firmware file.", Toast.LENGTH_LONG).show();
+
+            return;
+        }
+
+        if(hyRFID_Reader.check_Device() != hyRFID_Reader.HY_DEVICE_ISP) {
+            // Check Profile (non GLOBAL FULL)
+            if ((file_buf[file_buf.length - 14] != (byte) 0x8B) || (file_buf[file_buf.length - 13] != (byte) 0x9B)) {
+                if ((HY_Encrypt(file_buf[file_buf.length - 14]) != 'G' && HY_Encrypt(file_buf[file_buf.length - 14]) != 'C') || (HY_Encrypt(file_buf[file_buf.length - 13]) != 'L')) {
+                    Toast.makeText(MainActivity.this, "Wrong file (check profile)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                hyRFID_Reader.CheckProfile(Arrays.copyOfRange(file_buf, file_buf.length - 14, file_buf.length - 12));
+            } else {
+                //Enter ISP
+                hyRFID_Reader.ISP_EnterISP();
+            }
+        }else{
+            hyRFID_Reader.ISP_CheckProfile(Arrays.copyOfRange(file_buf, file_buf.length - 14, file_buf.length - 4));
+        }
+    }
+
+    private byte HY_Encrypt(byte data) {
+        return (byte)(~((data << 4) | (data >> 4)));
     }
 
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {

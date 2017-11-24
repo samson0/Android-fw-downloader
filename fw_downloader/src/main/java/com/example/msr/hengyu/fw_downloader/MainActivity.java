@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case CMD_CHIP_ERASE_ISP:
+
                         if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
                             printResult("Chip erase", "Chip erase fail", byteCmdBuf[3]);
                         }else{
@@ -242,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case CMD_FLASH_WRITE_ISP:
+
                         if(byteCmdBuf[3] != HY_STATUS_SUCCESS){
                             printResult("Write flash", String.format("Write flash fail, %04X", file_header), byteCmdBuf[3]);
                         }else{
@@ -392,6 +394,8 @@ public class MainActivity extends AppCompatActivity {
 
             return;
         }
+
+
 
         if(hyRFID_Reader.check_Device() != hyRFID_Reader.HY_DEVICE_ISP) {
             // Check Profile (non GLOBAL FULL)
